@@ -3,7 +3,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
 
-<div style="width:30%;">
+<div style="width:95%;">
     <canvas id="canvas"></canvas>
 </div>
 
@@ -11,10 +11,10 @@
 new Chart(document.getElementById("canvas"), {
     type: 'line',
     data: {
-        labels: '', 
+        labels: {{ xlabels | tojson }},
         datasets: [{
-            label: '',
-            data: '',
+            label: '{{ label }}',
+            data: {{ dataset | tojson }},
             borderColor: "rgba(247, 16, 74, 1)",
             fill: false,
             lineTension: 0
@@ -24,7 +24,7 @@ new Chart(document.getElementById("canvas"), {
         responsive: true,
         title: {
             display: true,
-            text: ' 가격 변화'
+            text: '{{ label }} 가격 변화'
         },
         tooltips: {
             mode: 'index',
@@ -54,4 +54,5 @@ new Chart(document.getElementById("canvas"), {
 });
 
 </script>
+
 </html>

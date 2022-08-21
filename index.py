@@ -49,15 +49,15 @@
 #         epoch_acc = running_corrects / 20 * 100
 #         print(epoch_acc)
 #         imshow(image.cpu().data[0], title='예측 결과: ' + class_names[preds[0]])
+# _*_ coding: utf-8 _*_
+
 import logging
 from upbit import Upbit
 from flask import Flask, request, render_template
 
-
 app = Flask(__name__)
 upbit = Upbit()
 upbit.get_hour_candles('KRW-BTC')
-
 
 @app.route('/')
 def root():
@@ -79,5 +79,12 @@ def root():
         i += 1
     return render_template('chart.html', **locals())
 
-if __name__ == "__main__":
+def main():
+    app.debug = True
     app.run(host="10.150.150.2", port="8080")
+
+
+if __name__ == '__main__':
+    main()
+# if __name__ == "__main__":
+#     app.run(host="10.150.150.2", port="8080")

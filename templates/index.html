@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form action='http://10.150.150.2:8080/smoke_test' method='post' enctype="multipart/form-data">
+        <input type="file" id="chooseFile" name="chooseFile" accept="image/*" onchange="loadFile(this)" value="보내기" >
+        <input type="submit" value="전송">
+    </form>
+    <form action='http://10.150.150.2:8080/smoke_test' method='post'>
+        <p><input type="text" id="imgsrc" value="" name="il" /></p>
+        <input type="submit" value="전송">
+    </form>
+</body>
+</html>

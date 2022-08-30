@@ -1,6 +1,8 @@
 from flask import Flask , render_template
 from PIL import Image
 from flask import jsonify
+from flask import request
+import os
 
 import torch
 import torch.nn as nn
@@ -11,6 +13,9 @@ from torchvision import datasets, models, transforms
 
 import numpy as np
 import time
+
+img_width = 224
+img_height = 224
 
 # variable
 device = torch.device("cpu")
@@ -36,14 +41,22 @@ app = Flask(__name__)
 def helloworld():
     return "hello flask!!!!!!!"
 
-@app.route("/smoketest")
+@app.route("/rq", methods=['GET','POST'])
 def smoke_rq():
     return render_template('index.html')
 
-@app.route("/recive")
+@app.route("/recive", methods=['GET','POST'])
 def smoke_rp():
     running_corrects = 0
-    image = Image.open('test_image2.jpg')
+
+    result1 = request.files['chooseFile']
+    result1.save('./static/imgs/'+'sss.jpg')
+
+    img_path = os.path.dirname(os.path.abspath('__file__'))
+    img_path += r'/static/imgs/sss.jpg'
+
+    image = Image.open(img_path).convert('RGB')
+    image = image.resize( (img_width , img_height ) )
     image = transforms_test(image).unsqueeze(0).to(device)
 
     with torch.no_grad():
@@ -56,7 +69,8 @@ def smoke_rp():
         # print(running_corrects)
         # epoch_acc = running_corrects / 20 * 100
         # print(epoch_acc)
-    return 'testing'
+        result1= class_names[preds[0]]
+    return render_template('index.html',result1=result1)
 
 def main():
     app.debug = True

@@ -1,8 +1,10 @@
-from flask import Flask , render_template
+from flask import Flask , render_template , Response
 from PIL import Image
 from flask import jsonify
 from flask import request
 import os
+
+from camera import Camera
 
 import torch
 import torch.nn as nn
@@ -49,6 +51,11 @@ def accuracy(out, yb):
     preds = torch.argmax(out, dim=1)
     return (preds == yb).float().mean()
 
+@app.route("/hello/<_name>")
+def hello(_name):
+   return render_template('page.html', name=_name)
+
+
 @app.route("/recive", methods=['GET','POST'])
 def smoke_rp():
 
@@ -76,6 +83,7 @@ def smoke_rp():
         # print(torch.max(outputs,1))
         print(test_acc)
     return render_template('index.html',result1=result1,test_acc=test_acc)
+
 
 def main():
     app.debug = True

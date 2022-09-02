@@ -1,8 +1,10 @@
-from flask import Flask , render_template
+from flask import Flask , render_template , Response
 from PIL import Image
 from flask import jsonify
 from flask import request
 import os
+
+from camera import Camera
 
 import torch
 import torch.nn as nn
@@ -24,17 +26,17 @@ transforms_test = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
+
 class_names = ['담배피는사람','담배안피는사람']
 
 model = models.resnet34(pretrained=True)
 num_features = model.fc.in_features
 model.fc = nn.Linear(num_features, 2) # 2개 class 
 model = model.to(device)
-# criterion = nn.CrossEntropyLoss()
-# optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 model.load_state_dict(torch.load('./smoke_model.pt',map_location='cpu'))
 model.eval()
-
 app = Flask(__name__)
 
 @app.route("/flasktest")
@@ -45,9 +47,17 @@ def helloworld():
 def smoke_rq():
     return render_template('index.html')
 
+def accuracy(out, yb):
+    preds = torch.argmax(out, dim=1)
+    return (preds == yb).float().mean()
+
+@app.route("/hello/<_name>")
+def hello(_name):
+   return render_template('page.html', name=_name)
+
+
 @app.route("/recive", methods=['GET','POST'])
 def smoke_rp():
-    running_corrects = 0
 
     result1 = request.files['chooseFile']
     result1.save('./static/imgs/'+'sss.jpg')
@@ -58,19 +68,22 @@ def smoke_rp():
     image = Image.open(img_path).convert('RGB')
     image = image.resize( (img_width , img_height ) )
     image = transforms_test(image).unsqueeze(0).to(device)
-
+    
     with torch.no_grad():
-        outputs = model(image)
-        _, preds = torch.max(outputs,1)
-        print(class_names[preds[0]])
-
+        running_loss = 0
+        running_corrects = 0
         # labels = labels.to(device)
-        # running_corrects += torch.sum(preds == labels.data)
-        # print(running_corrects)
-        # epoch_acc = running_corrects / 20 * 100
-        # print(epoch_acc)
+        outputs = model(image)
+            
+        _, preds = torch.max(outputs,1)
         result1= class_names[preds[0]]
-    return render_template('index.html',result1=result1)
+        test_acc = accuracy(image,preds[0])
+        # print(_)
+        # print(preds)
+        # print(torch.max(outputs,1))
+        print(test_acc)
+    return render_template('index.html',result1=result1,test_acc=test_acc)
+
 
 def main():
     app.debug = True

@@ -1,5 +1,6 @@
 from flask import Flask , render_template , Response
 from PIL import Image
+from picamera2 import Picamera2, Preview
 from flask import jsonify
 from flask import request
 import os
@@ -16,6 +17,16 @@ from torchvision import datasets, models, transforms
 import numpy as np
 import time
 
+def cam2():
+    picam2 = Picamera2()
+    camera_config = picam2.create_preview_configuration()
+    picam2.configure(camera_config)
+    # picam2.start_preview(Preview.DRM)
+    picam2.start()
+    picam2.capture_file("./static/pic.jpg")
+
+    return picam2
+    
 img_width = 224
 img_height = 224
 
@@ -84,6 +95,10 @@ def smoke_rp():
         print(test_acc)
     return render_template('index.html',result1=result1,test_acc=test_acc)
 
+@app.route("/test")
+def test_pic():
+    pycam = cam2()
+    return render_template('pic.html',pycam=pycam)
 
 def main():
     app.debug = True

@@ -16,16 +16,29 @@ from torchvision import datasets, models, transforms
 
 import numpy as np
 import time
+import shlex, subprocess
 
+comand = 'ls -l | grep ^- | wc -l'
 def cam2():
     picam2 = Picamera2()
     camera_config = picam2.create_preview_configuration()
     picam2.configure(camera_config)
     # picam2.start_preview(Preview.DRM)
+    # t1 = subprocess.check_output("cd imgs/; ls -l | grep ^- | wc -l; cd ../",shell=True, encoding='utf-8')
+    # t2 = subprocess.call("cd imgs/; ls -l | grep ^- | wc -l; cd ../",shell=True)
+    # t1 = str(t1)
+    # t1 = t1[:len(t1)-3]
+    # print(f"t1 : {t1} t2 : {t2}")
     picam2.start()
-    picam2.capture_file("./static/pic.jpg")
+    # p = subprocess.call("cd ./static/imgs/; ls -l | grep ^- | wc -l; cd ../",shell=True)
+    p = subprocess.check_output("cd static/imgs/; ls -l | grep ^- | wc -l; cd ../..",shell=True, encoding='utf-8')
+    p =str(p)
+    p = p[:len(p)-3]
+    print(p)
+    picam2.capture_file(f"./static/imgs/pic{p}.jpg")
+    pic_path = f"./static/imgs/pic{p}.jpg"
 
-    return picam2
+    return p , pic_path
     
 img_width = 224
 img_height = 224
@@ -97,8 +110,10 @@ def smoke_rp():
 
 @app.route("/test")
 def test_pic():
-    pycam = cam2()
-    return render_template('pic.html',pycam=pycam)
+    p , pic_path= cam2()
+    print(p)
+    print(pic_path)
+    return render_template('pic.html',p=p,pic_path=pic_path)
 
 def main():
     app.debug = True

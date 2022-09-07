@@ -7,9 +7,9 @@
     <title>Document</title>
 </head>
 <body>
-    {% if pycam %}
-    {{ pycam }}
-    <img src="../static/pic.jpg" alt="사진 테스트" >
+    {% if p %}
+    {{ p }}
+    <img src={{ pic_path }} alt="사진 테스트" >
     {% endif %}
 </body>
 </html>

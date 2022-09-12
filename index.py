@@ -21,23 +21,16 @@ import shlex, subprocess
 comand = 'ls -l | grep ^- | wc -l'
 def cam2():
     picam2 = Picamera2()
-    camera_config = picam2.create_preview_configuration()
+    camera_config = picam2.create_preview_configuration(main={"size":(1920,1280)})
     picam2.configure(camera_config)
-    # picam2.start_preview(Preview.DRM)
-    # t1 = subprocess.check_output("cd imgs/; ls -l | grep ^- | wc -l; cd ../",shell=True, encoding='utf-8')
-    # t2 = subprocess.call("cd imgs/; ls -l | grep ^- | wc -l; cd ../",shell=True)
-    # t1 = str(t1)
-    # t1 = t1[:len(t1)-3]
-    # print(f"t1 : {t1} t2 : {t2}")
     picam2.start()
-    # p = subprocess.call("cd ./static/imgs/; ls -l | grep ^- | wc -l; cd ../",shell=True)
     p = subprocess.check_output("cd static/imgs/; ls -l | grep ^- | wc -l; cd ../..",shell=True, encoding='utf-8')
     p =str(p)
     p = p[:len(p)-3]
     print(p)
     picam2.capture_file(f"./static/imgs/pic{p}.jpg")
     pic_path = f"./static/imgs/pic{p}.jpg"
-
+    picam2.close()
     return p , pic_path
     
 img_width = 224
@@ -84,10 +77,10 @@ def hello(_name):
 def smoke_rp():
 
     result1 = request.files['chooseFile']
-    result1.save('./static/imgs/'+'sss.jpg')
+    result1.save('./static/imgs/model/'+'model.jpg')
 
     img_path = os.path.dirname(os.path.abspath('__file__'))
-    img_path += r'/static/imgs/sss.jpg'
+    img_path += r'/static/imgs/model/model.jpg'
 
     image = Image.open(img_path).convert('RGB')
     image = image.resize( (img_width , img_height ) )

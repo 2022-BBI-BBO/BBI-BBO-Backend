@@ -1,11 +1,8 @@
 from flask import Flask , render_template , Response
 from PIL import Image
-from picamera2 import Picamera2, Preview
-from flask import jsonify
 from flask import request
 import os
 
-from camera import Camera
 
 import torch
 import torch.nn as nn
@@ -14,46 +11,13 @@ import torch.optim as optim
 import torchvision
 from torchvision import datasets, models, transforms
 
-import numpy as np
-import time
-import shlex, subprocess
+from pic import *
 
-comand = 'ls -l | grep ^- | wc -l'
-def cam2():
-    picam2 = Picamera2()
-    camera_config = picam2.create_preview_configuration(main={"size":(1920,1280)})
-    picam2.configure(camera_config)
-    picam2.start()
-    p = subprocess.check_output("cd static/imgs/; ls -l | grep ^- | wc -l; cd ../..",shell=True, encoding='utf-8')
-    p =str(p)
-    p = p[:len(p)-3]
-    print(p)
-    picam2.capture_file(f"./static/imgs/pic{p}.jpg")
-    pic_path = f"./static/imgs/pic{p}.jpg"
-    picam2.close()
-    return p , pic_path
-    
 img_width = 224
 img_height = 224
 
-# variable
-device = torch.device("cpu")
-transforms_test = transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ])
 
-class_names = ['담배피는사람','담배안피는사람']
 
-model = models.resnet34(pretrained=True)
-num_features = model.fc.in_features
-model.fc = nn.Linear(num_features, 2) # 2개 class 
-model = model.to(device)
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-model.load_state_dict(torch.load('./smoke_model.pt',map_location='cpu'))
-model.eval()
 app = Flask(__name__)
 
 @app.route("/flasktest")
@@ -73,9 +37,24 @@ def hello(_name):
    return render_template('page.html', name=_name)
 
 
-@app.route("/recive", methods=['GET','POST'])
+@app.route("/recive", methods=['GET','POST'])# model 만든거 테스트용임 기능 ㄴㄴ
 def smoke_rp():
-
+    device = torch.device("cpu")
+    transforms_test = transforms.Compose([
+            transforms.Resize((224, 224)),
+            transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        ])
+    class_names = ['담배피는사람','담배안피는사람']
+    model = models.resnet34(pretrained=True)
+    num_features = model.fc.in_features
+    model.fc = nn.Linear(num_features, 2) # 2개 class 
+    model = model.to(device)
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+    model.load_state_dict(torch.load('./smoke_model.pt',map_location='cpu'))
+    model.eval()
+    create_model()
     result1 = request.files['chooseFile']
     result1.save('./static/imgs/model/'+'model.jpg')
 
@@ -107,6 +86,11 @@ def test_pic():
     print(p)
     print(pic_path)
     return render_template('pic.html',p=p,pic_path=pic_path)
+
+@app.route("/db_test")
+def pydb():
+
+    return render_template('')
 
 def main():
     app.debug = True

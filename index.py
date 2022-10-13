@@ -9,7 +9,7 @@ from pymydb import *
 app = Flask(__name__)
 CORS(
         app,
-        resources={r"/api/*": {"origins":"http://localhost:3000"}},
+        resources={r"/api/*": {"origins":"*"}},
         supports_credentials=True
     )
 
@@ -20,8 +20,9 @@ def last():
     select_result = select_db( '*' , '2022_BBIBBO')
     print( select_result )
 
-@app.route('/api/test')
+@app.route('/api/test', methods=['GET'])
 def test():
+
     return "test"
 
 @app.route('/api/select_db', methods=['POST'])
@@ -46,3 +47,18 @@ if __name__ == '__main__':
 #     );
 #     console.log(res.data);
 # }
+
+#  const fetchUsers = async () => {
+#     try {
+#       setError(null);
+#       setUsers(null);
+#       setLoading(true);
+#       const response = await axios.get(
+#         'https://jsonplaceholder.typicode.com/users'
+#       );
+#       setUsers(response.data);
+#     } catch (e) {
+#       setError(e);
+#     }
+#     setLoading(false);
+#   };
